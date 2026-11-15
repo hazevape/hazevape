@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KeyForge | Roblox License Portal</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header class="top"><a class="brand" href="#">◈ <span>KEYFORGE</span></a><div class="topright"><span id="identity"></span><button id="logout" class="muted" hidden>Log out</button></div></header>
+<main>
+<section id="authPage" class="auth-layout">
+ <div class="hero"><p class="eyebrow">ROBLOX LICENSE PLATFORM</p><h1>Your scripts.<br><em>Your access.</em></h1><p>Secure account access, lifetime and time-limited keys, and real-time license verification.</p><div class="features"><span>✦ License management</span><span>✦ Account-bound verification</span><span>✦ Instant revocation</span></div></div>
+ <div class="panel auth-panel"><div class="tabs"><button id="loginTab" class="selected">Log in</button><button id="registerTab">Create account</button></div><h2 id="authHeading">Welcome back</h2><p class="sub">Access your licenses and dashboard.</p>
+ <form id="authForm"><label>Email address<input id="email" type="email" autocomplete="email" required placeholder="you@example.com"></label><label>Password<input id="password" type="password" minlength="12" autocomplete="current-password" required placeholder="At least 12 characters"></label><button class="primary wide" type="submit" id="authSubmit">Log in →</button></form>
+ <p class="hint">Accounts are secured by the API; no passwords are stored on GitHub Pages.</p></div>
+</section>
+<section id="dashboard" hidden>
+ <div class="dashhead"><div><p class="eyebrow">CONTROL CENTER</p><h1>Your licenses</h1><p class="sub">Redeem and manage your access keys.</p></div><span class="pill">● Connected</span></div>
+ <div class="stats"><div class="panel stat"><small>TOTAL LICENSES</small><strong id="totalKeys">0</strong></div><div class="panel stat"><small>ACTIVE LICENSES</small><strong id="activeKeys">0</strong></div><div class="panel stat"><small>ACCOUNT TYPE</small><strong id="accountRole">Member</strong></div></div>
+ <div class="panel"><h2>Redeem a key</h2><p class="sub">Each license can be claimed by one dashboard account.</p><form id="redeemForm" class="horizontal"><input id="redeemInput" placeholder="RBX-XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX" required><button class="primary">Redeem key</button></form></div>
+ <div class="panel"><div class="sectiontitle"><h2>My keys</h2><button id="refresh" class="muted">Refresh</button></div><div id="myKeys" class="tablewrap">No licenses yet.</div></div>
+ <div id="admin" hidden><div class="sectiontitle adminHeading"><div><p class="eyebrow">ADMINISTRATION</p><h1>License generator</h1></div></div>
+ <div class="panel"><h2>Create license keys</h2><form id="createForm" class="gridform"><label>Label<input id="keyLabel" maxlength="70" placeholder="e.g. Premium Script"></label><label>Duration<select id="keyKind"><option value="lifetime">Lifetime</option><option value="days">Expiring (days after redemption)</option></select></label><label id="daysField" hidden>Days<input id="keyDays" type="number" min="1" max="3650" value="30"></label><label>Quantity<input id="keyCount" type="number" min="1" max="20" value="1" required></label><button class="primary" type="submit">Generate keys</button></form>
+ <div id="generated" class="generated" hidden><h3>New keys — copy them now</h3><p class="sub">Full keys are displayed only once and cannot be recovered from the dashboard.</p><pre id="generatedText"></pre><button id="copyKeys" class="muted">Copy generated keys</button></div></div>
+ <div class="panel"><div class="sectiontitle"><h2>Recent issued keys</h2><button id="adminRefresh" class="muted">Refresh</button></div><div id="adminKeys" class="tablewrap"></div></div></div>
+</section>
+</main><div id="toast" role="status" aria-live="polite"></div><footer>KEYFORGE / Powered by GitHub Pages + Cloudflare</footer><script src="config.js"></script><script src="app.js"></script></body></html>
