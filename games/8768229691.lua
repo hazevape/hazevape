@@ -305,8 +305,8 @@ run(function()
 	local roactCheck = replicatedStorage['rbxts_include']['node_modules']['@rbxts']:FindFirstChild('roact')
 	skywars = setmetatable({
 		CameraUtil = require(lplr.PlayerScripts.TS.util['camera-util']).CameraUtil,
-		FireOrigin = (__hazeUpvalue(ControllerTable.ProjectileController.chargeBow, 'ORIGIN_OFFSET', 10) or {ORIGIN_OFFSET = CFrame.new()})
-		Gravity = (__hazeUpvalue(ControllerTable.ProjectileController.chargeBow, 'WORLD_ACCELERATION', 12) or {WORLD_ACCELERATION = Vector3.new(0, -196.2, 0)}),
+		FireOrigin = debug.getupvalue(ControllerTable.ProjectileController.chargeBow, 10).ORIGIN_OFFSET,
+		Gravity = debug.getupvalue(ControllerTable.ProjectileController.chargeBow, 12).WORLD_ACCELERATION.Y,
 		ItemMeta = debug.getupvalue(ControllerTable.HotbarController.getSword, 1),
 		Remotes = debug.getupvalue(ControllerTable.MeleeController.strikeDesktop, 6),
 		Roact = require(roactCheck and roactCheck.src or replicatedStorage['rbxts_include']['node_modules']['@rbxts'].ReactLua['node_modules']['@jsdotlua']['roact-compat']),
