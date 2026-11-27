@@ -309,7 +309,7 @@ run(function()
 end)
 
 run(function()
-    local CombatTest
+    local Killaura
     local AttackRange
     local AttackInterval
     local ShowTarget
@@ -402,9 +402,9 @@ run(function()
         Highlight.Adornee = Target
     end
 
-    CombatTest = haze.Categories.Blatant:CreateModule({
-        Name = "CombatTest",
-        Tooltip = "Tests BedFight combat validation against a Studio dummy.",
+    Killaura = haze.Categories.Blatant:CreateModule({
+        Name = "Killaura",
+        Tooltip = "Attack players arround you without aiming at them..",
 
         Function = function(callback)
             Generation += 1
@@ -412,7 +412,7 @@ run(function()
 
             if callback then
                 task.spawn(function()
-                    while CombatTest.Enabled
+                    while Killaura.Enabled
                         and Generation == CurrentGeneration do
 
                         local Target = getTestTarget()
@@ -425,7 +425,7 @@ run(function()
                             BedFight.SwordHit:FireServer(Target, Sword)
 
                             print(
-                                "[CombatTest]",
+                                "[Killaura]",
                                 "Target:", Target.Name,
                                 "Weapon:", Sword
                             )
@@ -443,7 +443,7 @@ run(function()
         end
     })
 
-    AttackRange = CombatTest:CreateSlider({
+    AttackRange = Killaura:CreateSlider({
         Name = "Attack range",
         Min = 1,
         Max = 18,
@@ -454,9 +454,9 @@ run(function()
         end
     })
 
-    AttackInterval = CombatTest:CreateSlider({
+    AttackInterval = Killaura:CreateSlider({
         Name = "Attack interval",
-        Min = 0.1,
+        Min = 0.01,
         Max = 2,
         Default = 0.5,
         Decimal = 100,
@@ -466,7 +466,7 @@ run(function()
         end
     })
 
-    ShowTarget = CombatTest:CreateToggle({
+    ShowTarget = Killaura:CreateToggle({
         Name = "Show target",
 
         Function = function(callback)
@@ -481,7 +481,7 @@ run(function()
         end
     })
 
-    TargetColor = CombatTest:CreateColorSlider({
+    TargetColor = Killaura:CreateColorSlider({
         Name = "Target color",
         DefaultOpacity = 0.5,
         Darker = true,
