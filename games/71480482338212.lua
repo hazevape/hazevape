@@ -272,7 +272,7 @@ end
 -- Studio combat test
 
 run(function()
-    local CombatTest
+    local Aura
     local AttackRange
     local AttackInterval
     local ShowTarget
@@ -358,7 +358,7 @@ run(function()
 
         if not Highlight then
             Highlight = Instance.new("Highlight")
-            Highlight.Name = "CombatTestHighlight"
+            Highlight.Name = "AuraHighlight"
             Highlight.FillTransparency = 0.65
             Highlight.OutlineTransparency = 0
             Highlight.DepthMode = Enum.HighlightDepthMode.Occluded
@@ -376,8 +376,8 @@ run(function()
         Highlight.Adornee = Target
     end
 
-    CombatTest = haze.Categories.Blatant:CreateModule({
-        Name = "CombatTest",
+    Aura = haze.Categories.Blatant:CreateModule({
+        Name = "Aura",
 
         Tooltip = "Tests combat against a Studio test dummy.",
 
@@ -392,7 +392,7 @@ run(function()
             end
 
             task.spawn(function()
-                while CombatTest.Enabled
+                while Aura.Enabled
                     and Generation == CurrentGeneration do
 
                     local Target = getTestTarget()
@@ -405,7 +405,7 @@ run(function()
                         BedFight.SwordHit:FireServer(Target, Sword)
 
                         print(
-                            "[CombatTest]",
+                            "[Aura]",
                             Target.Name,
                             Sword
                         )
@@ -421,7 +421,7 @@ run(function()
         end
     })
 
-    AttackRange = CombatTest:CreateSlider({
+    AttackRange = Aura:CreateSlider({
         Name = "Attack range",
         Min = 1,
         Max = 18,
@@ -432,7 +432,7 @@ run(function()
         end
     })
 
-    AttackInterval = CombatTest:CreateSlider({
+    AttackInterval = Aura:CreateSlider({
         Name = "Attack interval",
         Min = 0.1,
         Max = 2,
@@ -444,7 +444,7 @@ run(function()
         end
     })
 
-    ShowTarget = CombatTest:CreateToggle({
+    ShowTarget = Aura:CreateToggle({
         Name = "Show target",
 
         Function = function(callback)
@@ -458,7 +458,7 @@ run(function()
         end
     })
 
-    TargetColor = CombatTest:CreateColorSlider({
+    TargetColor = Aura:CreateColorSlider({
         Name = "Target color",
         DefaultOpacity = 0.5,
         Darker = true,
