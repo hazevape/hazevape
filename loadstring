@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hazevape/hazevape/main/NewMainScript.lua", true))()
