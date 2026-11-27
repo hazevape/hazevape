@@ -1,3 +1,7 @@
+local BedFight = {
+    SwordHit = replicatedStorage.Remotes.ItemsRemotes.SwordHit,
+    Equip = replicatedStorage.Remotes.ItemsRemotes.EquipTool
+}
 
 local run = function(func)
 	func()
@@ -302,4 +306,185 @@ run(function()
 		DefaultMax = 9,
 		Darker = true
 	})
+end)
+
+run(function()
+    local CombatTest
+    local AttackRange
+    local AttackInterval
+    local ShowTarget
+    local TargetColor
+    local Highlight
+    local Generation = 0
+
+    local Container = workspace:WaitForChild("PlayersContainer")
+
+    local SwordPriority = {
+        "Emerald Sword",
+        "Diamond Sword",
+        "Iron Sword",
+        "Stone Sword",
+        "Wooden Sword"
+    }
+
+    local function getBestSword()
+        local Inventory = lplr:FindFirstChild("Inventory")
+
+        if not Inventory then
+            return nil
+        end
+
+        for _, Name in ipairs(SwordPriority) do
+            if Inventory:FindFirstChild(Name) then
+                return Name
+            end
+        end
+
+        return nil
+    end
+
+    local function getTestTarget()
+        if not entitylib.isAlive then
+            return nil
+        end
+
+        local Root = entitylib.character.RootPart
+        local Target = Container:FindFirstChild("TestDummy")
+
+        if not Root or not Target then
+            return nil
+        end
+
+        local TargetRoot = Target:FindFirstChild("HumanoidRootPart")
+        local Humanoid = Target:FindFirstChildOfClass("Humanoid")
+
+        if not TargetRoot or not Humanoid then
+            return nil
+        end
+
+        if Humanoid.Health <= 0 then
+            return nil
+        end
+
+        local Distance = (Root.Position - TargetRoot.Position).Magnitude
+
+        if Distance > AttackRange.Value then
+            return nil
+        end
+
+        return Target
+    end
+
+    local function updateHighlight(Target)
+        if not ShowTarget.Enabled or not Target then
+            if Highlight then
+                Highlight.Adornee = nil
+            end
+            return
+        end
+
+        if not Highlight then
+            Highlight = Instance.new("Highlight")
+            Highlight.FillTransparency = 0.65
+            Highlight.OutlineTransparency = 0
+            Highlight.DepthMode = Enum.HighlightDepthMode.Occluded
+            Highlight.Parent = workspace
+        end
+
+        local Color = Color3.fromHSV(
+            TargetColor.Hue,
+            TargetColor.Sat,
+            TargetColor.Value
+        )
+
+        Highlight.FillColor = Color
+        Highlight.OutlineColor = Color
+        Highlight.Adornee = Target
+    end
+
+    CombatTest = haze.Categories.Blatant:CreateModule({
+        Name = "CombatTest",
+        Tooltip = "Tests BedFight combat validation against a Studio dummy.",
+
+        Function = function(callback)
+            Generation += 1
+            local CurrentGeneration = Generation
+
+            if callback then
+                task.spawn(function()
+                    while CombatTest.Enabled
+                        and Generation == CurrentGeneration do
+
+                        local Target = getTestTarget()
+                        local Sword = getBestSword()
+
+                        updateHighlight(Target)
+
+                        if Target and Sword then
+                            BedFight.Equip:FireServer(Sword)
+                            BedFight.SwordHit:FireServer(Target, Sword)
+
+                            print(
+                                "[CombatTest]",
+                                "Target:", Target.Name,
+                                "Weapon:", Sword
+                            )
+                        end
+
+                        task.wait(AttackInterval.Value)
+                    end
+                end)
+            else
+                if Highlight then
+                    Highlight:Destroy()
+                    Highlight = nil
+                end
+            end
+        end
+    })
+
+    AttackRange = CombatTest:CreateSlider({
+        Name = "Attack range",
+        Min = 1,
+        Max = 18,
+        Default = 6,
+
+        Suffix = function(Value)
+            return Value == 1 and " stud" or " studs"
+        end
+    })
+
+    AttackInterval = CombatTest:CreateSlider({
+        Name = "Attack interval",
+        Min = 0.1,
+        Max = 2,
+        Default = 0.5,
+        Decimal = 100,
+
+        Suffix = function()
+            return "s"
+        end
+    })
+
+    ShowTarget = CombatTest:CreateToggle({
+        Name = "Show target",
+
+        Function = function(callback)
+            if TargetColor then
+                TargetColor.Object.Visible = callback
+            end
+
+            if not callback and Highlight then
+                Highlight:Destroy()
+                Highlight = nil
+            end
+        end
+    })
+
+    TargetColor = CombatTest:CreateColorSlider({
+        Name = "Target color",
+        DefaultOpacity = 0.5,
+        Darker = true,
+        Visible = false
+    })
 end)
