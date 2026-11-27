@@ -1,5 +1,5 @@
 repeat task.wait() until game:IsLoaded()
-if shared.vape then shared.vape:Uninject() end
+if shared.haze then shared.haze:Uninject() end
 
 -- why do exploits fail to implement anything correctly? Is it really that hard?
 if identifyexecutor then
@@ -8,11 +8,11 @@ if identifyexecutor then
 	end
 end
 
-local vape
+local haze
 local loadstring = function(...)
 	local res, err = loadstring(...)
-	if err and vape then
-		vape:CreateNotification('Vape', 'Failed to load : '..err, 30, 'alert')
+	if err and haze then
+		haze:CreateNotification('Haze', 'Failed to load : '..err, 30, 'alert')
 	end
 	return res
 end
@@ -37,7 +37,7 @@ local function downloadFile(path, func)
 			error(res)
 		end
 		if path:find('.lua') then
-			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.\n'..res
+			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after haze updates.\n'..res
 		end
 		writefile(path, res)
 	end
@@ -45,42 +45,42 @@ local function downloadFile(path, func)
 end
 
 local function finishLoading()
-	vape.Init = nil
-	vape:Load()
+	haze.Init = nil
+	haze:Load()
 	task.spawn(function()
 		repeat
-			vape:Save()
+			haze:Save()
 			task.wait(10)
-		until not vape.Loaded
+		until not haze.Loaded
 	end)
 
 	local teleportedServers
-	vape:Clean(playersService.LocalPlayer.OnTeleport:Connect(function()
-		if (not teleportedServers) and (not shared.VapeIndependent) then
+	haze:Clean(playersService.LocalPlayer.OnTeleport:Connect(function()
+		if (not teleportedServers) and (not shared.HazeIndependent) then
 			teleportedServers = true
 			local teleportScript = [[
-				shared.vapereload = true
-				if shared.VapeDeveloper then
+				shared.hazereload = true
+				if shared.HazeDeveloper then
 					loadstring(readfile('hazevape/loader.lua'), 'loader')()
 				else
 					loadstring(game:HttpGet('https://raw.githubusercontent.com/hazevape/hazevape/'..readfile('hazevape/profiles/commit.txt')..'/loader.lua', true), 'loader')()
 				end
 			]]
-			if shared.VapeDeveloper then
-				teleportScript = 'shared.VapeDeveloper = true\n'..teleportScript
+			if shared.HazeDeveloper then
+				teleportScript = 'shared.HazeDeveloper = true\n'..teleportScript
 			end
-			if shared.VapeCustomProfile then
-				teleportScript = 'shared.VapeCustomProfile = "'..shared.VapeCustomProfile..'"\n'..teleportScript
+			if shared.HazeCustomProfile then
+				teleportScript = 'shared.HazeCustomProfile = "'..shared.HazeCustomProfile..'"\n'..teleportScript
 			end
-			vape:Save()
+			haze:Save()
 			queue_on_teleport(teleportScript)
 		end
 	end))
 
-	if not shared.vapereload then
-		if not vape.Categories then return end
-		if vape.Categories.Main.Options['GUI bind indicator'].Enabled then
-			vape:CreateNotification('Finished Loading', vape.VapeButton and 'Press the button in the top right to open GUI' or 'Press '..table.concat(vape.Keybind, ' + '):upper()..' to open GUI', 5)
+	if not shared.hazereload then
+		if not haze.Categories then return end
+		if haze.Categories.Main.Options['GUI bind indicator'].Enabled then
+			haze:CreateNotification('Finished Loading', haze.HazeButton and 'Press the button in the top right to open GUI' or 'Press '..table.concat(haze.Keybind, ' + '):upper()..' to open GUI', 5)
 		end
 	end
 end
@@ -93,15 +93,15 @@ local gui = readfile('hazevape/profiles/gui.txt')
 if not isfolder('hazevape/assets/'..gui) then
 	makefolder('hazevape/assets/'..gui)
 end
-vape = loadstring(downloadFile('hazevape/guis/'..gui..'.lua'), 'gui')()
-shared.vape = vape
+haze = loadstring(downloadFile('hazevape/guis/'..gui..'.lua'), 'gui')()
+shared.haze = haze
 
-if not shared.VapeIndependent then
+if not shared.HazeIndependent then
 	loadstring(downloadFile('hazevape/games/universal.lua'), 'universal')()
 	if isfile('hazevape/games/'..game.PlaceId..'.lua') then
 		loadstring(readfile('hazevape/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))(...)
 	else
-		if not shared.VapeDeveloper then
+		if not shared.HazeDeveloper then
 			local suc, res = pcall(function()
 				return game:HttpGet('https://raw.githubusercontent.com/hazevape/hazevape/'..readfile('hazevape/profiles/commit.txt')..'/games/'..game.PlaceId..'.lua', true)
 			end)
@@ -112,6 +112,6 @@ if not shared.VapeIndependent then
 	end
 	finishLoading()
 else
-	vape.Init = finishLoading
-	return vape
+	haze.Init = finishLoading
+	return haze
 end

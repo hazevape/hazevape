@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./README/vapelogo-white.png">
-    <source media="(prefers-color-scheme: light)" srcset="./README/vapelogo-dark.png">
-    <img alt="vape logo" src="./README/vapelogo.png">
+    <source media="(prefers-color-scheme: dark)" srcset="./README/hazelogo-white.png">
+    <source media="(prefers-color-scheme: light)" srcset="./README/hazelogo-dark.png">
+    <img alt="haze logo" src="./README/hazelogo.png">
   </picture>
 </p>
 <h2 align="center">
@@ -14,7 +14,7 @@
 ## Contacts
 [Discord](https://discord.gg/ZqS836yx9k)
 <br/>
-[Youtube](https://youtube.com/c/7GrandDadVape)
+[Youtube](https://youtube.com/c/7GrandDadHaze)
 
 ## Usage
 1. Download the specific scripting utility of your choice.
@@ -32,10 +32,10 @@ Half of the time its usually the scripting utility at fault, please make sure th
 If its not the supposed utility at fault, please try some troubleshooting steps.
 1. Deleting the hazevape folder (WITH THE GAME CLOSED).
 2. Making sure you have connection to [the main loadstring.](https://raw.githubusercontent.com/hazevape/hazevape/refs/heads/main/NewMainScript.lua)
-3. Ensuring no external script is conflicting with vape.
+3. Ensuring no external script is conflicting with haze.
 
 ## Developers & Credits
-[7GrandDad](https://github.com/hazevape) - Lead maintainer of the project - vaperoblox on Discord
+[7GrandDad](https://github.com/hazevape) - Lead maintainer of the project - hazeroblox on Discord
 <br/>
 [rce-incorporated](https://github.com/rce-incorporated/Fiu) - Luau bytecode disassembly with modifications
 <br/>

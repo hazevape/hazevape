@@ -73,10 +73,10 @@ local getcustomassets = {
 	['hazevape/assets/old/settingsicon.png'] = 'rbxasset://settingsicon.png',
 	['hazevape/assets/old/targetinfoicon.png'] = 'rbxasset://targetinfoicon.png',
 	['hazevape/assets/old/textguiicon.png'] = 'rbxasset://textguiicon.png',
-	['hazevape/assets/old/textvape.png'] = 'rbxasset://textvape.png',
+	['hazevape/assets/old/texthaze.png'] = 'rbxasset://texthaze.png',
 	['hazevape/assets/old/textv4.png'] = 'rbxasset://textv4.png',
 	['hazevape/assets/old/utilityicon.png'] = 'rbxasset://utilityicon.png',
-	['hazevape/assets/old/vape.png'] = 'rbxassetid://14373395239',
+	['hazevape/assets/old/haze.png'] = 'rbxassetid://14373395239',
 	['hazevape/assets/old/worldicon.png'] = 'rbxasset://worldicon.png'
 }
 
@@ -227,7 +227,7 @@ local function downloadFile(path, func)
 			error(res)
 		end
 		if path:find('.lua') then
-			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.\n'..res
+			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after haze updates.\n'..res
 		end
 		writefile(path, res)
 	end
@@ -1850,9 +1850,9 @@ function mainapi:CreateBar()
 		function optionapi:SetBind(tab, mouse)
 			mainapi.Keybind = #tab <= 0 and mainapi.Keybind or table.clone(tab)
 			self.Bind = mainapi.Keybind
-			if mainapi.VapeButton then
-				mainapi.VapeButton:Destroy()
-				mainapi.VapeButton = nil
+			if mainapi.HazeButton then
+				mainapi.HazeButton:Destroy()
+				mainapi.HazeButton = nil
 			end
 
 			if mouse then
@@ -3094,7 +3094,7 @@ function mainapi:Load(skipgui, profile)
 		guidata = loadJson('hazevape/profiles/'..game.GameId..'.gui.txt')
 		if not guidata then
 			guidata = {Categories = {}}
-			self:CreateNotification('Vape', 'Failed to load GUI settings.', 10, 'alert')
+			self:CreateNotification('Haze', 'Failed to load GUI settings.', 10, 'alert')
 			savecheck = false
 		end
 
@@ -3142,7 +3142,7 @@ function mainapi:Load(skipgui, profile)
 				Modules = {},
 				Legit = {}
 			}
-			self:CreateNotification('Vape', 'Failed to load '..self.Profile..' profile.', 10, 'alert')
+			self:CreateNotification('Haze', 'Failed to load '..self.Profile..' profile.', 10, 'alert')
 			savecheck = false
 		end
 
@@ -3221,9 +3221,9 @@ function mainapi:Load(skipgui, profile)
 		image.Size = UDim2.fromOffset(26, 26)
 		image.Position = UDim2.fromOffset(3, 3)
 		image.BackgroundTransparency = 1
-		image.Image = getcustomasset('hazevape/assets/old/vape.png')
+		image.Image = getcustomasset('hazevape/assets/old/haze.png')
 		image.Parent = button
-		self.VapeButton = button
+		self.HazeButton = button
 		button.MouseButton1Click:Connect(function()
 			if self.ThreadFix then
 				setthreadidentity(8)
@@ -3362,9 +3362,9 @@ function mainapi:Uninject()
 	mainapi.gui:Destroy()
 	table.clear(mainapi.Libraries)
 	loopClean(mainapi)
-	shared.vape = nil
-	shared.vapereload = nil
-	shared.VapeIndependent = nil
+	shared.haze = nil
+	shared.hazereload = nil
+	shared.HazeIndependent = nil
 end
 
 gui = Instance.new('ScreenGui')
@@ -3725,15 +3725,15 @@ topbar:CreateDropdown({
 	Function = function(val, mouse)
 		if mouse then
 			writefile('hazevape/profiles/gui.txt', val)
-			shared.vapereload = true
-			if shared.VapeDeveloper then
+			shared.hazereload = true
+			if shared.HazeDeveloper then
 				loadstring(readfile('hazevape/loader.lua'), 'loader')()
 			else
 				loadstring(game:HttpGet('https://raw.githubusercontent.com/hazevape/hazevape/'..readfile('hazevape/profiles/commit.txt')..'/loader.lua', true))()
 			end
 		end
 	end,
-	Tooltip = 'new - The newest vape theme to since v4.05\nold - The vape theme pre v4.05\nrise - Rise 6.0'
+	Tooltip = 'new - The newest haze theme to since v4.05\nold - The haze theme pre v4.05\nrise - Rise 6.0'
 })
 mainapi.RainbowMode = topbar:CreateDropdown({
 	Name = 'Rainbow Mode',
@@ -3763,14 +3763,14 @@ topbar:CreateButton({
 		if isfile('hazevape/profiles/'..mainapi.Profile..mainapi.Place..'.txt') and delfile then
 			delfile('hazevape/profiles/'..mainapi.Profile..mainapi.Place..'.txt')
 		end
-		shared.vapereload = true
-		if shared.VapeDeveloper then
+		shared.hazereload = true
+		if shared.HazeDeveloper then
 			loadstring(readfile('hazevape/loader.lua'), 'loader')()
 		else
 			loadstring(game:HttpGet('https://raw.githubusercontent.com/hazevape/hazevape/'..readfile('hazevape/profiles/commit.txt')..'/loader.lua', true))()
 		end
 	end,
-	Tooltip = 'This will set your profile to the default settings of Vape'
+	Tooltip = 'This will set your profile to the default settings of Haze'
 })
 topbar:CreateButton({
 	Name = 'Reset GUI positions',
@@ -3822,19 +3822,19 @@ topbar:CreateButton({
 	Function = function()
 		mainapi:Uninject()
 	end,
-	Tooltip = 'Removes vape from the current game'
+	Tooltip = 'Removes haze from the current game'
 })
 topbar:CreateButton({
 	Name = 'REINEJCT',
 	Function = function()
-		shared.vapereload = true
-		if shared.VapeDeveloper then
+		shared.hazereload = true
+		if shared.HazeDeveloper then
 			loadstring(readfile('hazevape/loader.lua'), 'loader')()
 		else
 			loadstring(game:HttpGet('https://raw.githubusercontent.com/hazevape/hazevape/'..readfile('hazevape/profiles/commit.txt')..'/loader.lua', true))()
 		end
 	end,
-	Tooltip = 'Reloads vape for debugging purposes'
+	Tooltip = 'Reloads haze for debugging purposes'
 })
 topbar:CreateBind()
 
@@ -4017,8 +4017,8 @@ local textguisort = textgui:CreateDropdown({
 		mainapi:UpdateTextGUI()
 	end
 })
-local VapeTextScale = Instance.new('UIScale')
-VapeTextScale.Parent = textgui.Children
+local HazeTextScale = Instance.new('UIScale')
+HazeTextScale.Parent = textgui.Children
 local textguiscale = textgui:CreateSlider({
 	Name = 'Scale',
 	Min = 0,
@@ -4026,7 +4026,7 @@ local textguiscale = textgui:CreateSlider({
 	Decimal = 10,
 	Default = 1,
 	Function = function(val)
-		VapeTextScale.Scale = val
+		HazeTextScale.Scale = val
 		mainapi:UpdateTextGUI()
 	end
 })
@@ -4039,7 +4039,7 @@ local textguishadow = textgui:CreateToggle({
 })
 local textguiwatermark = textgui:CreateToggle({
 	Name = 'Watermark',
-	Tooltip = 'Renders a vape watermark',
+	Tooltip = 'Renders a haze watermark',
 	Function = function()
 		mainapi:UpdateTextGUI()
 	end
@@ -4083,17 +4083,17 @@ local textguirender = textgui:CreateToggle({
 	Text GUI Objects
 ]]
 
-local VapeLabels = {}
-local VapeLogo = Instance.new('ImageLabel')
-VapeLogo.Name = 'Logo'
-VapeLogo.Size = UDim2.fromOffset(96, 26)
-VapeLogo.Position = UDim2.new(1, -142, 0, 3)
-VapeLogo.BackgroundTransparency = 1
-VapeLogo.BorderSizePixel = 0
-VapeLogo.Visible = true
-VapeLogo.BackgroundColor3 = Color3.new()
-VapeLogo.Image = getcustomasset('hazevape/assets/old/textvape.png')
-VapeLogo.Parent = textgui.Children
+local HazeLabels = {}
+local HazeLogo = Instance.new('ImageLabel')
+HazeLogo.Name = 'Logo'
+HazeLogo.Size = UDim2.fromOffset(96, 26)
+HazeLogo.Position = UDim2.new(1, -142, 0, 3)
+HazeLogo.BackgroundTransparency = 1
+HazeLogo.BorderSizePixel = 0
+HazeLogo.Visible = true
+HazeLogo.BackgroundColor3 = Color3.new()
+HazeLogo.Image = getcustomasset('hazevape/assets/old/texthaze.png')
+HazeLogo.Parent = textgui.Children
 
 local lastside = textgui.Children.AbsolutePosition.X > (gui.AbsoluteSize.X / 2)
 mainapi:Clean(textgui.Children:GetPropertyChangedSignal('AbsolutePosition'):Connect(function()
@@ -4107,62 +4107,62 @@ mainapi:Clean(textgui.Children:GetPropertyChangedSignal('AbsolutePosition'):Conn
 	end
 end))
 
-local VapeLogoV4 = Instance.new('ImageLabel')
-VapeLogoV4.Name = 'Logo2'
-VapeLogoV4.Size = UDim2.fromOffset(43, 30)
-VapeLogoV4.Position = UDim2.new(1, 1, 0, -2)
-VapeLogoV4.BackgroundColor3 = Color3.new()
-VapeLogoV4.BackgroundTransparency = 1
-VapeLogoV4.BorderSizePixel = 0
-VapeLogoV4.Image = getcustomasset('hazevape/assets/old/textv4.png')
-VapeLogoV4.Parent = VapeLogo
-local VapeLogoShadow = VapeLogo:Clone()
-VapeLogoShadow.Position = UDim2.fromOffset(1, 1)
-VapeLogoShadow.ZIndex = 0
-VapeLogoShadow.Visible = true
-VapeLogoShadow.ImageColor3 = Color3.new()
-VapeLogoShadow.ImageTransparency = 0.65
-VapeLogoShadow.Parent = VapeLogo
-VapeLogoShadow.Logo2.ZIndex = 0
-VapeLogoShadow.Logo2.ImageColor3 = Color3.new()
-VapeLogoShadow.Logo2.ImageTransparency = 0.65
-local VapeLogoGradient = Instance.new('UIGradient')
-VapeLogoGradient.Rotation = 90
-VapeLogoGradient.Parent = VapeLogo
-local VapeLogoGradient2 = Instance.new('UIGradient')
-VapeLogoGradient2.Rotation = 90
-VapeLogoGradient2.Parent = VapeLogoV4
-local VapeLabelHolder = Instance.new('Frame')
-VapeLabelHolder.Name = 'Holder'
-VapeLabelHolder.Size = UDim2.fromScale(1, 1)
-VapeLabelHolder.Position = UDim2.fromOffset(5, 37)
-VapeLabelHolder.BackgroundTransparency = 1
-VapeLabelHolder.Parent = textgui.Children
-local VapeLabelSorter = Instance.new('UIListLayout')
-VapeLabelSorter.HorizontalAlignment = Enum.HorizontalAlignment.Right
-VapeLabelSorter.VerticalAlignment = Enum.VerticalAlignment.Top
-VapeLabelSorter.SortOrder = Enum.SortOrder.LayoutOrder
-VapeLabelSorter.Parent = VapeLabelHolder
+local HazeLogoV4 = Instance.new('ImageLabel')
+HazeLogoV4.Name = 'Logo2'
+HazeLogoV4.Size = UDim2.fromOffset(43, 30)
+HazeLogoV4.Position = UDim2.new(1, 1, 0, -2)
+HazeLogoV4.BackgroundColor3 = Color3.new()
+HazeLogoV4.BackgroundTransparency = 1
+HazeLogoV4.BorderSizePixel = 0
+HazeLogoV4.Image = getcustomasset('hazevape/assets/old/textv4.png')
+HazeLogoV4.Parent = HazeLogo
+local HazeLogoShadow = HazeLogo:Clone()
+HazeLogoShadow.Position = UDim2.fromOffset(1, 1)
+HazeLogoShadow.ZIndex = 0
+HazeLogoShadow.Visible = true
+HazeLogoShadow.ImageColor3 = Color3.new()
+HazeLogoShadow.ImageTransparency = 0.65
+HazeLogoShadow.Parent = HazeLogo
+HazeLogoShadow.Logo2.ZIndex = 0
+HazeLogoShadow.Logo2.ImageColor3 = Color3.new()
+HazeLogoShadow.Logo2.ImageTransparency = 0.65
+local HazeLogoGradient = Instance.new('UIGradient')
+HazeLogoGradient.Rotation = 90
+HazeLogoGradient.Parent = HazeLogo
+local HazeLogoGradient2 = Instance.new('UIGradient')
+HazeLogoGradient2.Rotation = 90
+HazeLogoGradient2.Parent = HazeLogoV4
+local HazeLabelHolder = Instance.new('Frame')
+HazeLabelHolder.Name = 'Holder'
+HazeLabelHolder.Size = UDim2.fromScale(1, 1)
+HazeLabelHolder.Position = UDim2.fromOffset(5, 37)
+HazeLabelHolder.BackgroundTransparency = 1
+HazeLabelHolder.Parent = textgui.Children
+local HazeLabelSorter = Instance.new('UIListLayout')
+HazeLabelSorter.HorizontalAlignment = Enum.HorizontalAlignment.Right
+HazeLabelSorter.VerticalAlignment = Enum.VerticalAlignment.Top
+HazeLabelSorter.SortOrder = Enum.SortOrder.LayoutOrder
+HazeLabelSorter.Parent = HazeLabelHolder
 
 function mainapi:UpdateTextGUI(afterload)
 	if not afterload and not mainapi.Loaded then return end
 	if textgui.Button.Enabled then
 		local right = textgui.Children.AbsolutePosition.X > (gui.AbsoluteSize.X / 2)
-		VapeLogo.Visible = textguiwatermark.Enabled
-		VapeLogo.Position = right and UDim2.new(1 / VapeTextScale.Scale, -141, 0, 4) or UDim2.fromOffset(5, 4)
-		VapeLogoShadow.Visible = textguishadow.Enabled
-		VapeLabelSorter.HorizontalAlignment = right and Enum.HorizontalAlignment.Right or Enum.HorizontalAlignment.Left
-		VapeLabelHolder.Size = UDim2.fromScale(1 / VapeTextScale.Scale, 1)
-		VapeLabelHolder.Position = UDim2.fromOffset(4, 4 + (VapeLogo.Visible and VapeLogo.Size.Y.Offset or 0))
+		HazeLogo.Visible = textguiwatermark.Enabled
+		HazeLogo.Position = right and UDim2.new(1 / HazeTextScale.Scale, -141, 0, 4) or UDim2.fromOffset(5, 4)
+		HazeLogoShadow.Visible = textguishadow.Enabled
+		HazeLabelSorter.HorizontalAlignment = right and Enum.HorizontalAlignment.Right or Enum.HorizontalAlignment.Left
+		HazeLabelHolder.Size = UDim2.fromScale(1 / HazeTextScale.Scale, 1)
+		HazeLabelHolder.Position = UDim2.fromOffset(4, 4 + (HazeLogo.Visible and HazeLogo.Size.Y.Offset or 0))
 
 		local found = {}
-		for _, v in VapeLabels do
+		for _, v in HazeLabels do
 			if v.Enabled then
 				table.insert(found, v.Object.Name)
 			end
 			v.Object:Destroy()
 		end
-		table.clear(VapeLabels)
+		table.clear(HazeLabels)
 
 		for i, v in mainapi.Modules do
 			if textguimodules.Enabled and table.find(textguimoduleslist.ListEnabled, i) then continue end
@@ -4174,7 +4174,7 @@ function mainapi:UpdateTextGUI(afterload)
 				holder.Size = UDim2.fromOffset()
 				holder.BackgroundTransparency = 1
 				holder.ClipsDescendants = true
-				holder.Parent = VapeLabelHolder
+				holder.Parent = HazeLabelHolder
 				local holdertext = Instance.new('TextLabel')
 				holdertext.Position = UDim2.fromOffset(right and 3 or 0, 2)
 				holdertext.BackgroundTransparency = 1
@@ -4196,7 +4196,7 @@ function mainapi:UpdateTextGUI(afterload)
 				holdertext.Parent = holder
 				local holdersize = UDim2.fromOffset(size.X + 10, size.Y + 3)
 				holder.Size = v.Enabled and holdersize or UDim2.fromOffset()
-				table.insert(VapeLabels, {
+				table.insert(HazeLabels, {
 					Object = holder,
 					Text = holdertext,
 					Enabled = v.Enabled
@@ -4205,16 +4205,16 @@ function mainapi:UpdateTextGUI(afterload)
 		end
 
 		if textguisort.Value == 'Alphabetical' then
-			table.sort(VapeLabels, function(a, b)
+			table.sort(HazeLabels, function(a, b)
 				return a.Text.Text < b.Text.Text
 			end)
 		else
-			table.sort(VapeLabels, function(a, b)
+			table.sort(HazeLabels, function(a, b)
 				return a.Text.Size.X.Offset > b.Text.Size.X.Offset
 			end)
 		end
 
-		for i, v in VapeLabels do
+		for i, v in HazeLabels do
 			if v.Color then
 				v.Color.Parent.Line.Visible = i ~= 1
 			end
@@ -4250,16 +4250,16 @@ function mainapi:UpdateGUI(hue, sat, val, default)
 	if mainapi.Loaded == nil then return end
 	if not default and mainapi.GUIColor.Rainbow then return end
 	if textgui.Button.Enabled then
-		VapeLogoGradient.Color = ColorSequence.new({
+		HazeLogoGradient.Color = ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.fromHSV(hue, sat, val)),
 			ColorSequenceKeypoint.new(1, mainapi.GUIColor.Rainbow and Color3.fromHSV(mainapi:Color((hue - 0.075) % 1)) or Color3.fromHSV(hue, sat, val))
 		})
-		VapeLogoGradient2.Color = mainapi.GUIColor.Rainbow and VapeLogoGradient.Color or ColorSequence.new({
+		HazeLogoGradient2.Color = mainapi.GUIColor.Rainbow and HazeLogoGradient.Color or ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
 			ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1))
 		})
-		for i, v in VapeLabels do
-			v.Text.TextColor3 = customcolor or (mainapi.GUIColor.Rainbow and Color3.fromHSV(mainapi:Color((hue - ((i + 2) * 0.025)) % 1)) or VapeLogoGradient.Color.Keypoints[2].Value)
+		for i, v in HazeLabels do
+			v.Text.TextColor3 = customcolor or (mainapi.GUIColor.Rainbow and Color3.fromHSV(mainapi:Color((hue - ((i + 2) * 0.025)) % 1)) or HazeLogoGradient.Color.Keypoints[2].Value)
 		end
 	end
 
