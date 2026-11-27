@@ -1,33 +1,22 @@
-local BedFight = {
-    SwordHit = replicatedStorage.Remotes.ItemsRemotes.SwordHit,
-    Equip = replicatedStorage.Remotes.ItemsRemotes.EquipTool
-}
-
 local run = function(func)
-	func()
+    func()
 end
-local cloneref = cloneref or function(obj)
-	return obj
-end
-local hazeEvents = setmetatable({}, {
-	__index = function(self, index)
-		self[index] = Instance.new('BindableEvent')
-		return self[index]
-	end
-})
 
-local playersService = cloneref(game:GetService('Players'))
-local inputService = cloneref(game:GetService('UserInputService'))
-local replicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
-local collectionService = cloneref(game:GetService('CollectionService'))
-local httpService = cloneref(game:GetService('HttpService'))
-local coreGui = cloneref(game:GetService('CoreGui'))
-local tweenService = cloneref(game:GetService('TweenService'))
-local runService = cloneref(game:GetService('RunService'))
+local cloneref = cloneref or function(obj)
+    return obj
+end
+
+local playersService = cloneref(game:GetService("Players"))
+local inputService = cloneref(game:GetService("UserInputService"))
+local replicatedStorage = cloneref(game:GetService("ReplicatedStorage"))
+local collectionService = cloneref(game:GetService("CollectionService"))
+local httpService = cloneref(game:GetService("HttpService"))
+local coreGui = cloneref(game:GetService("CoreGui"))
+local tweenService = cloneref(game:GetService("TweenService"))
+local runService = cloneref(game:GetService("RunService"))
 
 local gameCamera = workspace.CurrentCamera
 local lplr = playersService.LocalPlayer
-local assetfunction = getcustomasset
 
 local haze = shared.haze
 local entitylib = haze.Libraries.entity
@@ -39,210 +28,252 @@ local color = haze.Libraries.color
 local prediction = haze.Libraries.prediction
 local getcustomasset = haze.Libraries.getcustomasset
 
+local ItemsRemotes = replicatedStorage
+    :WaitForChild("Remotes")
+    :WaitForChild("ItemsRemotes")
+
+local BedFight = {
+    SwordHit = ItemsRemotes:WaitForChild("SwordHit"),
+    Equip = ItemsRemotes:WaitForChild("EquipTool")
+}
+
+local hazeEvents = setmetatable({}, {
+    __index = function(self, index)
+        self[index] = Instance.new("BindableEvent")
+        return self[index]
+    end
+})
+
 local function collection(tags, module, customadd, customremove)
-	tags = typeof(tags) ~= 'table' and {tags} or tags
-	local objs, connections = {}, {}
+    tags = typeof(tags) ~= "table" and {tags} or tags
 
-	for _, tag in tags do
-		table.insert(connections, collectionService:GetInstanceAddedSignal(tag):Connect(function(v)
-			if customadd then
-				customadd(objs, v, tag)
-				return
-			end
-			table.insert(objs, v)
-		end))
-		table.insert(connections, collectionService:GetInstanceRemovedSignal(tag):Connect(function(v)
-			if customremove then
-				customremove(objs, v, tag)
-				return
-			end
-			v = table.find(objs, v)
-			if v then
-				table.remove(objs, v)
-			end
-		end))
+    local objs = {}
+    local connections = {}
 
-		for _, v in collectionService:GetTagged(tag) do
-			if customadd then
-				customadd(objs, v, tag)
-				continue
-			end
-			table.insert(objs, v)
-		end
-	end
+    for _, tag in tags do
+        table.insert(connections,
+            collectionService:GetInstanceAddedSignal(tag):Connect(function(v)
+                if customadd then
+                    customadd(objs, v, tag)
+                else
+                    table.insert(objs, v)
+                end
+            end)
+        )
 
-	local cleanFunc = function(self)
-		for _, v in connections do
-			v:Disconnect()
-		end
-		table.clear(connections)
-		table.clear(objs)
-		table.clear(self)
-	end
-	if module then
-		module:Clean(cleanFunc)
-	end
-	return objs, cleanFunc
-end
+        table.insert(connections,
+            collectionService:GetInstanceRemovedSignal(tag):Connect(function(v)
+                if customremove then
+                    customremove(objs, v, tag)
+                    return
+                end
 
-local function isFriend(plr, recolor)
-	if haze.Categories.Friends.Options['Use friends'].Enabled then
-		local friend = table.find(haze.Categories.Friends.ListEnabled, plr.Name) and true
-		if recolor then
-			friend = friend and haze.Categories.Friends.Options['Recolor visuals'].Enabled
-		end
-		return friend
-	end
-	return nil
-end
+                local index = table.find(objs, v)
 
-local function isTarget(plr)
-	return table.find(haze.Categories.Targets.ListEnabled, plr.Name) and true
+                if index then
+                    table.remove(objs, index)
+                end
+            end)
+        )
+
+        for _, v in collectionService:GetTagged(tag) do
+            if customadd then
+                customadd(objs, v, tag)
+            else
+                table.insert(objs, v)
+            end
+        end
+    end
+
+    local cleanFunc = function()
+        for _, connection in connections do
+            connection:Disconnect()
+        end
+
+        table.clear(connections)
+        table.clear(objs)
+    end
+
+    if module then
+        module:Clean(cleanFunc)
+    end
+
+    return objs, cleanFunc
 end
 
 local function notif(...)
-	return haze:CreateNotification(...)
-end
-
-local function parsePositions(v, func)
-	if v:IsA('Part') and v.Size // 1 == v.Size then
-		local start = (v.Position - (v.Size / 2)) + Vector3.new(1.5, 1.5, 1.5)
-		for x = 0, v.Size.X - 1, 3 do
-			for y = 0, v.Size.Y - 1, 3 do
-				for z = 0, v.Size.Z - 1, 3 do
-					func(start + Vector3.new(x, y, z))
-				end
-			end
-		end
-	end
+    return haze:CreateNotification(...)
 end
 
 local function waitForChildOfType(obj, name, timeout, prop)
-	local checktick = tick() + timeout
-	local returned
-	repeat
-		returned = prop and obj[name] or obj:FindFirstChildOfClass(name)
-		if returned or checktick < tick() then break end
-		task.wait()
-	until false
-	return returned
+    local deadline = os.clock() + timeout
+
+    repeat
+        local result = prop and obj[name]
+            or obj:FindFirstChildOfClass(name)
+
+        if result then
+            return result
+        end
+
+        task.wait()
+    until os.clock() >= deadline
+
+    return nil
 end
 
+local function getHealth(plr, humanoid)
+    if plr then
+        return plr:GetAttribute("Health") or humanoid.Health
+    end
+
+    return humanoid.Health
+end
+
+-- Entity library
+
 run(function()
-	entitylib.addPlayer = function(plr)
-		if plr.Character then
-			entitylib.refreshEntity(plr.Character, plr)
-		end
-		entitylib.PlayerConnections[plr] = {
-			plr.CharacterAdded:Connect(function(char)
-				entitylib.refreshEntity(char, plr)
-			end),
-			plr.CharacterRemoving:Connect(function(char)
-				entitylib.removeEntity(char, plr == lplr)
-			end),
-			plr:GetAttributeChangedSignal('TeamId'):Connect(function()
-				for i, v in entitylib.List do
-					if v.Targetable ~= entitylib.targetCheck(v) then
-						entitylib.refreshEntity(v.Character, v.Player)
-					end
-				end
+    entitylib.addPlayer = function(plr)
+        if plr.Character then
+            entitylib.refreshEntity(plr.Character, plr)
+        end
 
-				if plr == lplr then
-					entitylib.start()
-				else
-					entitylib.refreshEntity(plr.Character, plr)
-				end
-			end)
-		}
-	end
+        entitylib.PlayerConnections[plr] = {
+            plr.CharacterAdded:Connect(function(char)
+                entitylib.refreshEntity(char, plr)
+            end),
 
-	entitylib.addEntity = function(char, plr, teamfunc)
-		if not char then return end
-		entitylib.EntityThreads[char] = task.spawn(function()
-			local hum = waitForChildOfType(char, 'Humanoid', 10)
-			local humrootpart = hum and waitForChildOfType(hum, 'RootPart', workspace.StreamingEnabled and 9e9 or 10, true)
-			local head = char:WaitForChild('Head', 10) or humrootpart
+            plr.CharacterRemoving:Connect(function(char)
+                entitylib.removeEntity(char, plr == lplr)
+            end)
+        }
+    end
 
-			if hum and humrootpart then
-				local entity = {
-					Connections = {},
-					Character = char,
-					Health = (plr:GetAttribute('Health') or 100),
-					Head = head,
-					Humanoid = hum,
-					HumanoidRootPart = humrootpart,
-					HipHeight = hum.HipHeight + (humrootpart.Size.Y / 2) + (hum.RigType == Enum.HumanoidRigType.R6 and 2 or 0),
-					MaxHealth = 100,
-					NPC = plr == nil,
-					Player = plr,
-					RootPart = humrootpart,
-					TeamCheck = teamfunc
-				}
+    entitylib.addEntity = function(char, plr, teamfunc)
+        if not char then
+            return
+        end
 
-				if plr == lplr then
-					entity.GroundPosition = Vector3.zero
-					entitylib.character = entity
-					entitylib.isAlive = true
-					entitylib.Events.LocalAdded:Fire(entity)
-				else
-					entity.Targetable = (teamfunc or entitylib.targetCheck)(entity)
+        entitylib.EntityThreads[char] = task.spawn(function()
+            local hum = waitForChildOfType(
+                char,
+                "Humanoid",
+                10
+            )
 
-					for _, v in entitylib.getUpdateConnections(entity) do
-						table.insert(entity.Connections, v:Connect(function()
-							entity.Health = (plr:GetAttribute('Health') or 100)
-							entitylib.Events.EntityUpdated:Fire(entity)
-						end))
-					end
+            local root = hum and waitForChildOfType(
+                hum,
+                "RootPart",
+                10,
+                true
+            )
 
-					table.insert(entitylib.List, entity)
-					entitylib.Events.EntityAdded:Fire(entity)
-				end
-			end
-			entitylib.EntityThreads[char] = nil
-		end)
-	end
+            if hum and root then
+                local entity = {
+                    Connections = {},
+                    Character = char,
+                    Health = getHealth(plr, hum),
+                    Head = char:FindFirstChild("Head") or root,
+                    Humanoid = hum,
+                    HumanoidRootPart = root,
+                    HipHeight = hum.HipHeight + root.Size.Y / 2,
+                    MaxHealth = hum.MaxHealth,
+                    NPC = plr == nil,
+                    Player = plr,
+                    RootPart = root,
+                    TeamCheck = teamfunc
+                }
 
-	entitylib.getUpdateConnections = function(ent)
-		return {
-			ent.Player:GetAttributeChangedSignal('Health'),
-			{
-				Connect = function()
-					ent.Friend = ent.Player and isFriend(ent.Player) or nil
-					ent.Target = ent.Player and isTarget(ent.Player) or nil
-					return {Disconnect = function() end}
-				end
-			}
-		}
-	end
+                if plr == lplr then
+                    entity.GroundPosition = Vector3.zero
+                    entitylib.character = entity
+                    entitylib.isAlive = true
 
-	entitylib.targetCheck = function(ent)
-		if ent.NPC then return true end
-		if isFriend(ent.Player) then return false end
-		if not select(2, whitelist:get(ent.Player)) then return false end
-		return lplr:GetAttribute('TeamId') ~= ent.Player:GetAttribute('TeamId')
-	end
+                    entitylib.Events.LocalAdded:Fire(entity)
+                else
+                    entity.Targetable = entitylib.targetCheck(entity)
 
-	entitylib.getEntityColor = function(ent)
-		ent = ent.Player
-		if not (ent and haze.Categories.Main.Options['Use team color'].Enabled) then return end
-		if isFriend(ent, true) then
-			return Color3.fromHSV(haze.Categories.Friends.Options['Friends color'].Hue, haze.Categories.Friends.Options['Friends color'].Sat, haze.Categories.Friends.Options['Friends color'].Value)
-		end
-		return skywars.TeamController:getTeamColour(ent:GetAttribute('TeamId'))
-	end
+                    for _, signal in entitylib.getUpdateConnections(entity) do
+                        table.insert(
+                            entity.Connections,
+                            signal:Connect(function()
+                                entity.Health = getHealth(plr, hum)
+                                entity.MaxHealth = hum.MaxHealth
+
+                                entitylib.Events.EntityUpdated:Fire(entity)
+                            end)
+                        )
+                    end
+
+                    table.insert(entitylib.List, entity)
+                    entitylib.Events.EntityAdded:Fire(entity)
+                end
+            end
+
+            entitylib.EntityThreads[char] = nil
+        end)
+    end
+
+    entitylib.getUpdateConnections = function(ent)
+        local signals = {
+            ent.Humanoid.HealthChanged,
+            ent.Humanoid:GetPropertyChangedSignal("MaxHealth")
+        }
+
+        if ent.Player then
+            table.insert(
+                signals,
+                ent.Player:GetAttributeChangedSignal("Health")
+            )
+        end
+
+        return signals
+    end
+
+    entitylib.targetCheck = function(ent)
+        return ent.NPC
+            and ent.Character ~= nil
+            and ent.Character.Name == "TestDummy"
+            and ent.Health > 0
+    end
+
+    entitylib.getEntityColor = function(ent)
+        local plr = ent.Player
+
+        if plr and plr.Team then
+            return plr.TeamColor.Color
+        end
+
+        return nil
+    end
 end)
+
 entitylib.start()
 
-for _, v in {'Reach', 'TriggerBot', 'Disabler', 'SilentAim', 'AutoRejoin', 'Rejoin', 'ServerHop', 'MurderMystery'} do
-	haze:Remove(v)
+-- Remove unsupported modules
+
+for _, name in {
+    "Reach",
+    "TriggerBot",
+    "Disabler",
+    "SilentAim",
+    "AutoRejoin",
+    "Rejoin",
+    "ServerHop",
+    "MurderMystery"
+} do
+    haze:Remove(name)
 end
 
+-- Studio combat test
+
 run(function()
-    local Killaura
+    local CombatTest
     local AttackRange
     local AttackInterval
     local ShowTarget
     local TargetColor
+
     local Highlight
     local Generation = 0
 
@@ -263,9 +294,9 @@ run(function()
             return nil
         end
 
-        for _, Name in ipairs(SwordPriority) do
-            if Inventory:FindFirstChild(Name) then
-                return Name
+        for _, name in SwordPriority do
+            if Inventory:FindFirstChild(name) then
+                return name
             end
         end
 
@@ -273,14 +304,18 @@ run(function()
     end
 
     local function getTestTarget()
-        if not entitylib.isAlive then
-            return nil
-        end
+        local Character = lplr.Character
 
-        local Root = entitylib.character.RootPart
+        local Root = Character
+            and Character:FindFirstChild("HumanoidRootPart")
+
         local Target = Container:FindFirstChild("TestDummy")
 
         if not Root or not Target then
+            return nil
+        end
+
+        if playersService:GetPlayerFromCharacter(Target) then
             return nil
         end
 
@@ -304,88 +339,98 @@ run(function()
         return Target
     end
 
+    local function clearHighlight()
+        if Highlight then
+            Highlight:Destroy()
+            Highlight = nil
+        end
+    end
+
     local function updateHighlight(Target)
         if not ShowTarget.Enabled or not Target then
-            if Highlight then
-                Highlight.Adornee = nil
-            end
+            clearHighlight()
             return
         end
 
         if not Highlight then
             Highlight = Instance.new("Highlight")
+            Highlight.Name = "CombatTestHighlight"
             Highlight.FillTransparency = 0.65
             Highlight.OutlineTransparency = 0
             Highlight.DepthMode = Enum.HighlightDepthMode.Occluded
             Highlight.Parent = workspace
         end
 
-        local Color = Color3.fromHSV(
+        local SelectedColor = Color3.fromHSV(
             TargetColor.Hue,
             TargetColor.Sat,
             TargetColor.Value
         )
 
-        Highlight.FillColor = Color
-        Highlight.OutlineColor = Color
+        Highlight.FillColor = SelectedColor
+        Highlight.OutlineColor = SelectedColor
         Highlight.Adornee = Target
     end
 
-    Killaura = haze.Categories.Blatant:CreateModule({
-        Name = "Killaura",
-        Tooltip = "Attack players arround you without aiming at them..",
+    CombatTest = haze.Categories.Blatant:CreateModule({
+        Name = "CombatTest",
+
+        Tooltip = "Tests combat against a Studio test dummy.",
 
         Function = function(callback)
             Generation += 1
+
             local CurrentGeneration = Generation
 
-            if callback then
-                task.spawn(function()
-                    while Killaura.Enabled
-                        and Generation == CurrentGeneration do
-
-                        local Target = getTestTarget()
-                        local Sword = getBestSword()
-
-                        updateHighlight(Target)
-
-                        if Target and Sword then
-                            BedFight.Equip:FireServer(Sword)
-                            BedFight.SwordHit:FireServer(Target, Sword)
-
-                            print(
-                                "[Killaura]",
-                                "Target:", Target.Name,
-                                "Weapon:", Sword
-                            )
-                        end
-
-                        task.wait(AttackInterval.Value)
-                    end
-                end)
-            else
-                if Highlight then
-                    Highlight:Destroy()
-                    Highlight = nil
-                end
+            if not callback then
+                clearHighlight()
+                return
             end
+
+            task.spawn(function()
+                while CombatTest.Enabled
+                    and Generation == CurrentGeneration do
+
+                    local Target = getTestTarget()
+                    local Sword = getBestSword()
+
+                    updateHighlight(Target)
+
+                    if Target and Sword then
+                        BedFight.Equip:FireServer(Sword)
+                        BedFight.SwordHit:FireServer(Target, Sword)
+
+                        print(
+                            "[CombatTest]",
+                            Target.Name,
+                            Sword
+                        )
+                    end
+
+                    task.wait(AttackInterval.Value)
+                end
+
+                if Generation == CurrentGeneration then
+                    clearHighlight()
+                end
+            end)
         end
     })
 
-    AttackRange = Killaura:CreateSlider({
+    AttackRange = CombatTest:CreateSlider({
         Name = "Attack range",
         Min = 1,
         Max = 18,
         Default = 6,
 
-        Suffix = function(Value)
-            return Value == 1 and " stud" or " studs"
+        Suffix = function(value)
+            return value == 1 and " stud" or " studs"
         end
     })
 
-    AttackInterval = Killaura:CreateSlider({
+    AttackInterval = CombatTest:CreateSlider({
         Name = "Attack interval",
-        Min = 0.01,
+        Min = 0.1,
         Max = 2,
         Default = 0.5,
         Decimal = 100,
@@ -395,7 +440,7 @@ run(function()
         end
     })
 
-    ShowTarget = Killaura:CreateToggle({
+    ShowTarget = CombatTest:CreateToggle({
         Name = "Show target",
 
         Function = function(callback)
@@ -403,14 +448,13 @@ run(function()
                 TargetColor.Object.Visible = callback
             end
 
-            if not callback and Highlight then
-                Highlight:Destroy()
-                Highlight = nil
+            if not callback then
+                clearHighlight()
             end
         end
     })
 
-    TargetColor = Killaura:CreateColorSlider({
+    TargetColor = CombatTest:CreateColorSlider({
         Name = "Target color",
         DefaultOpacity = 0.5,
         Darker = true,
