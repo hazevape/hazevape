@@ -260,7 +260,8 @@ for _, name in {
     "AutoRejoin",
     "Rejoin",
     "ServerHop",
-    "MurderMystery"
+    "MurderMystery",
+    "Killaura"
 } do
     haze:Remove(name)
 end
