@@ -230,12 +230,15 @@ run(function()
         return signals
     end
 
-    entitylib.targetCheck = function(ent)
-        return ent.NPC
-            and ent.Character ~= nil
-            and ent.Character.Name == "TestDummy"
-            and ent.Health > 0
+entitylib.targetCheck = function(ent)
+    if not ent or not ent.Character then
+        return false
     end
+
+    return ent.NPC
+        and ent.Character.Name == "TestDummy"
+        and ent.Health > 0
+end
 
     entitylib.getEntityColor = function(ent)
         local plr = ent.Player
